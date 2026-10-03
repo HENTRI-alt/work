@@ -4,800 +4,445 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>NMT Tracker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0c0d11;
-      --card-bg: #15181e;
-      --card-hover: #1c2029;
-      --border: rgba(255, 255, 255, 0.08);
-      --text: #f3f4f6;
-      --muted: #8b92a0;
-      
-      --c-hist: #f59e0b;
-      --c-math: #3b82f6;
-      --c-lang: #10b981;
-      --c-lit: #ec4899;
-      
-      --radius-l: 22px;
-      --radius-m: 14px;
-      --radius-s: 8px;
+      --bg: #000000;
+      --surface: #1c1c1e;
+      --surface-hover: #2c2c2e;
+      --border: #38383a;
+      --text: #ffffff;
+      --text-sec: #8e8e93;
+      --accent: #0a84ff;
+      --c-hist: #ff9f0a;
+      --c-math: #30d158;
+      --c-lang: #5e5ce6;
+      --c-lit: #ff375f;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+    
     body {
-      background-color: var(--bg);
+      background: var(--bg);
       color: var(--text);
-      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 0;
-      overflow-x: hidden;
-    }
-
-    #app {
-      width: 100%;
-      max-width: 480px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      background: var(--bg);
-    }
-
-    /* Верхний бар */
-    header {
-      padding: 24px 20px 16px;
-      position: sticky;
-      top: 0;
-      background: rgba(12, 13, 17, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      z-index: 20;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 14px;
-    }
-
-    .logo {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      color: #fff;
-    }
-
-    .overall-stats {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .overall-stats span {
-      color: #fff;
-      font-weight: 700;
-    }
-
-    .progress-bar-wrap {
-      width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-
-    .progress-fill-total {
-      height: 100%;
-      width: 0%;
-      background: #fff;
-      border-radius: 99px;
-      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    /* Экран карточек (Главная) */
-    #home-view {
-      padding: 20px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .grid-hub {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 10px;
-    }
-
-    .subject-btn {
-      position: relative;
-      aspect-ratio: 1 / 1;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-l);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      cursor: pointer;
-      transition: transform 0.15s ease, background 0.15s ease;
-    }
-
-    .subject-btn:active {
-      transform: scale(0.96);
-      background: var(--card-hover);
-    }
-
-    .btn-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .badge-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: var(--radius-m);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 17px;
-      font-weight: 700;
-    }
-
-    .percent-val {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    .btn-bottom {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .subject-title {
-      font-size: 15px;
-      font-weight: 700;
-      line-height: 1.25;
-      color: #fff;
-    }
-
-    .subject-fraction {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .mini-track {
-      width: 100%;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 99px;
-      overflow: hidden;
-      margin-top: 2px;
-    }
-
-    .mini-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: 99px;
-      transition: width 0.3s ease;
-    }
-
-    /* Стили для каждого предмета */
-    .theme-hist .badge-icon { background: rgba(245, 158, 11, 0.15); color: var(--c-hist); }
-    .theme-hist .mini-fill { background: var(--c-hist); }
-
-    .theme-math .badge-icon { background: rgba(59, 130, 246, 0.15); color: var(--c-math); }
-    .theme-math .mini-fill { background: var(--c-math); }
-
-    .theme-lang .badge-icon { background: rgba(16, 185, 129, 0.15); color: var(--c-lang); }
-    .theme-lang .mini-fill { background: var(--c-lang); }
-
-    .theme-lit .badge-icon { background: rgba(236, 72, 153, 0.15); color: var(--c-lit); }
-    .theme-lit .mini-fill { background: var(--c-lit); }
-
-    /* Экран списка задач */
-    #todo-view {
-      display: none;
-      flex-direction: column;
-      min-height: 100vh;
-      background: var(--bg);
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 30;
-      padding-bottom: 40px;
-    }
-
-    .detail-nav {
-      position: sticky;
-      top: 0;
-      background: rgba(12, 13, 17, 0.9);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      border-bottom: 1px solid var(--border);
-      z-index: 10;
-    }
-
-    .back-btn {
-      background: #1c2029;
-      border: none;
-      color: #fff;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    .detail-nav-title {
-      flex: 1;
-    }
-
-    .detail-nav-title h2 {
-      font-size: 17px;
-      font-weight: 700;
-    }
-
-    .detail-nav-title p {
-      font-size: 12px;
-      color: var(--muted);
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .tasks-container {
-      padding: 16px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .section-block {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-m);
-      overflow: hidden;
-    }
-
-    .section-title {
-      padding: 12px 16px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      background: rgba(255, 255, 255, 0.02);
-      border-bottom: 1px solid var(--border);
-      color: var(--muted);
-    }
-
-    .todo-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
-      cursor: pointer;
-      transition: background 0.1s ease;
-    }
-
-    .todo-item:last-child {
-      border-bottom: none;
-    }
-
-    .todo-item:active {
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .custom-checkbox {
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
-      border: 2px solid #374151;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
-      transition: all 0.2s ease;
-    }
-
-    .todo-item.done .custom-checkbox {
-      border-color: #10b981;
-      background: #10b981;
-    }
-
-    .custom-checkbox svg {
-      width: 14px;
-      height: 14px;
-      fill: none;
-      stroke: #0c0d11;
-      stroke-width: 3;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      opacity: 0;
-      transform: scale(0.6);
-      transition: all 0.2s ease;
-    }
-
-    .todo-item.done .custom-checkbox svg {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .todo-label {
-      font-size: 14.5px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       line-height: 1.4;
-      color: #e5e7eb;
-      font-weight: 500;
-      transition: color 0.2s ease;
     }
 
-    .todo-item.done .todo-label {
-      color: #4b5563;
-      text-decoration: line-through;
+    #app { max-width: 500px; margin: 0 auto; min-height: 100vh; position: relative; display: flex; flex-direction: column; }
+
+    /* Header */
+    header { padding: 20px 20px 10px; }
+    h1 { font-size: 28px; font-weight: 700; letter-spacing: 0.5px; }
+    .progress-text { font-size: 14px; color: var(--text-sec); margin-top: 4px; font-weight: 500; }
+    
+    .progress-bar { height: 8px; background: var(--surface); border-radius: 4px; margin-top: 12px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--text); width: 0%; transition: width 0.3s ease; }
+
+    /* Grid (Главный экран) */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; }
+    
+    .card {
+      background: var(--surface); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; cursor: pointer; transition: transform 0.1s;
     }
+    .card:active { transform: scale(0.95); background: var(--surface-hover); }
+    
+    .card-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+    .card-icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    
+    .c-hist { color: var(--c-hist); }
+    .c-math { color: var(--c-math); }
+    .c-lang { color: var(--c-lang); }
+    .c-lit { color: var(--c-lit); }
+    
+    .card.c-hist .card-icon, .subject-row.c-hist .card-icon { background: rgba(255, 159, 10, 0.15); }
+    .card.c-math .card-icon, .subject-row.c-math .card-icon { background: rgba(48, 209, 88, 0.15); }
+    .card.c-lang .card-icon, .subject-row.c-lang .card-icon { background: rgba(94, 92, 230, 0.15); }
+    .card.c-lit .card-icon, .subject-row.c-lit .card-icon { background: rgba(255, 55, 95, 0.15); }
+
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+    .card-stats { font-size: 13px; color: var(--text-sec); }
+
+    /* Plan Section */
+    .plan-section { padding: 0 20px 40px; display: flex; flex-direction: column; gap: 16px; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; }
+    .section-header h2 { font-size: 20px; font-weight: 700; }
+    
+    .btn-add { 
+      background: var(--surface); color: var(--accent); border: none; padding: 14px; border-radius: 16px; 
+      font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; transition: transform 0.1s;
+    }
+    .btn-add:active { background: var(--surface-hover); transform: scale(0.98); }
+
+    .plan-list { background: var(--surface); border-radius: 16px; overflow: hidden; }
+    .empty-plan { padding: 24px 20px; text-align: center; color: var(--text-sec); font-size: 15px; }
+
+    /* List Items */
+    .list-item { 
+      display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer; gap: 14px;
+    }
+    .list-item:active { background: rgba(255,255,255,0.05); }
+    .list-item:last-child { border-bottom: none; }
+    
+    .checkbox { 
+      width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--text-sec); 
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.2s;
+    }
+    .list-item.done .checkbox { background: var(--accent); border-color: var(--accent); }
+    .checkbox svg { width: 14px; height: 14px; fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; opacity: 0; transform: scale(0.5); transition: 0.2s; }
+    .list-item.done .checkbox svg { opacity: 1; transform: scale(1); }
+    
+    .item-text { flex: 1; font-size: 15px; font-weight: 500; transition: 0.2s; color: var(--text); }
+    .list-item.done .item-text { color: var(--text-sec); text-decoration: line-through; }
+    .item-subtext { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
+
+    /* Modals (Views) */
+    .view {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg);
+      z-index: 100; display: none; flex-direction: column; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .view.active { display: flex; transform: translateX(0); }
+    
+    .nav-bar { 
+      padding: 16px 20px; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); 
+      display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
+    }
+    .btn-back { background: none; border: none; color: var(--accent); font-size: 17px; font-weight: 500; cursor: pointer; display: flex; align-items: center; padding: 4px 0;}
+    .nav-title { font-size: 17px; font-weight: 600; flex: 1; text-align: center; margin-right: 60px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+    
+    .scroll-area { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 60px; }
+    .item-group { background: var(--surface); border-radius: 16px; overflow: hidden; }
+
+    /* Plan Selector Accordion Styles */
+    .acc-wrapper { background: var(--surface); border-radius: 16px; margin-bottom: 16px; overflow: hidden; }
+    .subject-row { 
+      display: flex; align-items: center; padding: 12px 16px; cursor: pointer; gap: 14px;
+      transition: background 0.1s;
+    }
+    .subject-row:active { background: rgba(255,255,255,0.05); }
+    .subject-row .card-icon { width: 38px; height: 38px; margin-bottom: 0; border-radius: 10px; }
+    .subject-row-title { flex: 1; font-size: 17px; font-weight: 600; color: var(--text); }
+    .chevron { font-size: 20px; color: var(--text-sec); font-weight: 400; transition: transform 0.2s; }
+    
+    .acc-content { display: none; border-top: 1px solid var(--border); }
+    .acc-content.open { display: block; }
+
+    /* Checkbox для выбора тем в план */
+    .plan-checkbox { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--text-sec); display: flex; align-items: center; justify-content: center; }
+    .list-item.in-plan .plan-checkbox { background: var(--accent); border-color: var(--accent); }
+    .list-item.in-plan .plan-checkbox svg { opacity: 1; transform: scale(1); }
+
+    /* SVG Иконки предметов (повторное использование) */
+    .icon-hist { content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23ff9f0a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>'); }
+    .icon-math { content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%2330d158" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>'); }
+    .icon-lang { content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%235e5ce6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'); }
+    .icon-lit { content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23ff375f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>'); }
   </style>
 </head>
 <body>
 
   <div id="app">
-    <!-- Главный экран -->
     <header>
-      <div class="header-top">
-        <div class="logo">НМТ Подготовка</div>
-        <div class="overall-stats" id="total-stats">0% (0/0)</div>
-      </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-fill-total" id="total-bar"></div>
-      </div>
+      <h1>НМТ Прогрес</h1>
+      <div class="progress-text" id="total-text">0 / 0 тем вивчено</div>
+      <div class="progress-bar"><div class="progress-fill" id="total-fill"></div></div>
     </header>
 
-    <main id="home-view">
-      <div class="grid-hub" id="hub-grid"></div>
-    </main>
-
-    <!-- Экран To-Do листа -->
-    <div id="todo-view">
-      <div class="detail-nav">
-        <button class="back-btn" id="btn-back">✕</button>
-        <div class="detail-nav-title">
-          <h2 id="view-title">Предмет</h2>
-          <p id="view-progress">0/0 выполнено</p>
-        </div>
+    <div class="grid">
+      <div class="card c-hist" onclick="openSubject('hist')">
+        <div class="card-icon"><img class="icon-hist" alt="icon"></div>
+        <div class="card-title">Історія України</div>
+        <div class="card-stats" id="stat-hist">0 / 32</div>
       </div>
-      <div class="tasks-container" id="tasks-scroll"></div>
+      <div class="card c-math" onclick="openSubject('math')">
+        <div class="card-icon"><img class="icon-math" alt="icon"></div>
+        <div class="card-title">Математика</div>
+        <div class="card-stats" id="stat-math">0 / 51</div>
+      </div>
+      <div class="card c-lang" onclick="openSubject('lang')">
+        <div class="card-icon"><img class="icon-lang" alt="icon"></div>
+        <div class="card-title">Укр. мова</div>
+        <div class="card-stats" id="stat-lang">0 / 41</div>
+      </div>
+      <div class="card c-lit" onclick="openSubject('lit')">
+        <div class="card-icon"><img class="icon-lit" alt="icon"></div>
+        <div class="card-title">Укр. літ</div>
+        <div class="card-stats" id="stat-lit">0 / 45</div>
+      </div>
+    </div>
+
+    <div class="plan-section">
+      <div class="section-header">
+        <h2>Мій план</h2>
+      </div>
+      <button class="btn-add" onclick="openPlanSelector()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Вибрати теми
+      </button>
+      <div class="plan-list" id="plan-list-container">
+        <!-- Сюди рендеряться вибрані теми -->
+      </div>
     </div>
   </div>
 
+  <!-- Екран предмета (Всі теми) -->
+  <div class="view" id="view-subject">
+    <div class="nav-bar">
+      <button class="btn-back" onclick="closeView('view-subject')">‹ Назад</button>
+      <div class="nav-title" id="subject-title">Предмет</div>
+    </div>
+    <div class="scroll-area" id="subject-content"></div>
+  </div>
+
+  <!-- Екран вибору тем для плану (Аккордеон) -->
+  <div class="view" id="view-plan-selector">
+    <div class="nav-bar">
+      <button class="btn-back" onclick="closePlanSelector()">‹ Готово</button>
+      <div class="nav-title">Вибір тем у план</div>
+    </div>
+    <div class="scroll-area" id="plan-selector-content"></div>
+  </div>
+
   <script>
-    // База тем
-    const SUBJECTS = {
+    const DB = {
       hist: {
         title: "Історія України",
-        code: "ІСТ",
-        class: "theme-hist",
-        sections: [
-          {
-            name: "Давні часи та Середньовіччя",
-            items: [
-              "Вступ до історії України.",
-              "Стародавня історія України.",
-              "Русь-Україна.",
-              "Королівство Руське та монгольська навала.",
-              "Руські удільні князівства у складі іноземних держав."
-            ]
-          },
-          {
-            name: "Козацька доба",
-            items: [
-              "Українські землі у складі Речі Посполитої (2-га пол. XVI ст.).",
-              "Українські землі у складі Речі Посполитої (1-ша пол. XVII ст.).",
-              "Національно-визвольна війна середини XVII ст..",
-              "Козацька Україна наприкінці 50-80-х рр. XVII ст..",
-              "Українські землі наприкінці XVII – 1-й пол. XVIII ст..",
-              "Українські землі в другій половині XVIII ст.."
-            ]
-          },
-          {
-            name: "Під владою імперій (XIX ст.)",
-            items: [
-              "Землі у складі Російської імперії (кін. XVIII – 1-ша пол. XIX ст.).",
-              "Землі у складі Австрійської імперії (кін. XVIII – 1-ша пол. XIX ст.).",
-              "Культура України кінця XVIII – першої половини XIX ст..",
-              "Землі у складі Російської імперії (2-га пол. XIX ст.).",
-              "Землі у складі Австро-Угорщини (2-га пол. XIX ст.).",
-              "Культура України другої половини XIX – початку XX ст.."
-            ]
-          },
-          {
-            name: "Початок XX ст. та Революція",
-            items: [
-              "Землі у складі Російської імперії в 1900-1914 рр..",
-              "Землі у складі Австро-Угорщини в 1900-1914 рр..",
-              "Україна в роки Першої світової війни.",
-              "Початок Української революції.",
-              "Розгортання Української революції. Боротьба за державність.",
-              "Встановлення комуністичного тоталітарного режиму."
-            ]
-          },
-          {
-            name: "Міжвоєнний час та ДСВ",
-            items: [
-              "Утвердження більшовицького тоталітарного режиму.",
-              "Західноукраїнські землі в міжвоєнний період.",
-              "Україна в роки Другої світової війни."
-            ]
-          },
-          {
-            name: "Повоєнні роки та Незалежність",
-            items: [
-              "Україна в перші повоєнні роки.",
-              "Україна в умовах десталінізації.",
-              "Україна в період загострення кризи радянської системи.",
-              "Відновлення незалежності України.",
-              "Становлення України як незалежної держави.",
-              "Творення нової України."
-            ]
-          }
+        topics: [
+          "Вступ до історії України.", "Стародавня історія України.", "Русь-Україна.", 
+          "Королівство Руське та монгольська навала.", "Руські удільні князівства у складі іноземних держав.",
+          "Українські землі у складі Речі Посполитої в другій половині XVI ст..",
+          "Українські землі у складі Речі Посполитої в першій половині XVII ст..",
+          "Національно-визвольна війна українського народу середини XVII ст..",
+          "Козацька Україна наприкінці 50-80-х рр. XVII ст..",
+          "Українські землі наприкінці XVII – в першій половині XVIII ст..",
+          "Українські землі в другій половині XVIII ст..",
+          "Українські землі у складі Російської імперії наприкінці XVIII – в першій половині XIX ст..",
+          "Українські землі у складі Австрійської імперії наприкінці XVIII – в першій половині XIX ст..",
+          "Культура України кінця XVIII – першої половини XIX ст..",
+          "Українські землі у складі Російської імперії в другій половині XIX ст..",
+          "Українські землі у складі Австро-Угорщини в другій половині XIX ст..",
+          "Культура України в другій половині XIX – на початку XX ст..",
+          "Українські землі у складі Російської імперії в 1900-1914 рр..",
+          "Українські землі у складі Австро-Угорщини в 1900-1914 рр..",
+          "Україна в роки Першої світової війни.", "Початок Української революції.",
+          "Розгортання Української революції. Боротьба за відновлення державності.",
+          "Встановлення комуністичного тоталітарного режиму в Україні.",
+          "Утвердження більшовицького тоталітарного режиму в Україні.",
+          "Західноукраїнські землі в міжвоєнний період.", "Україна в роки Другої світової війни.",
+          "Україна в перші повоєнні роки.", "Україна в умовах десталінізації.",
+          "Україна в період загострення кризи радянської системи.", "Відновлення незалежності України.",
+          "Становлення України як незалежної держави.", "Творення нової України."
         ]
       },
       math: {
         title: "Математика",
-        code: "МАТ",
-        class: "theme-math",
-        sections: [
-          {
-            name: "Арифметика та Базові вирази",
-            items: [
-              "Числові множини. Прості та складені числа.",
-              "Ознаки подільності. НСК. НСД.",
-              "Основи Арифметики.",
-              "Дроби та Десяткові дроби.",
-              "Відсотки та Пропорції.",
-              "Середні величини.",
-              "Степінь та Корінь.",
-              "Формули скороченого множення.",
-              "Стандартний вигляд числа.",
-              "Скорочення раціональних та ірраціональних виразів."
-            ]
-          },
-          {
-            name: "Рівняння та Системи",
-            items: [
-              "Лінійні рівняння.",
-              "Модуль та Рівняння з модулем.",
-              "Квадратні рівняння.",
-              "Раціональні та ірраціональні рівняння.",
-              "Логарифм та Логарифмічні рівняння.",
-              "Основи тригонометрії та Тригонометричні рівняння.",
-              "Показникові рівняння.",
-              "Системи рівнянь.",
-              "Текстові задачі."
-            ]
-          },
-          {
-            name: "Нерівності",
-            items: [
-              "Координатна пряма.",
-              "Числові нерівності (лінійні).",
-              "Квадратичні нерівності.",
-              "Раціональні / Ірраціональні нерівності.",
-              "Показникові / Логарифмічні нерівності.",
-              "Нерівності зі змінною в модулі."
-            ]
-          },
-          {
-            name: "Функції, Прогресії та Аналіз",
-            items: [
-              "Прогресії (арифметична, геометрична).",
-              "Властивості та види графіків функцій.",
-              "Похідна функції.",
-              "Первісна та інтеграл.",
-              "Початки Математичної Статистики.",
-              "Параметр."
-            ]
-          },
-          {
-            name: "Планіметрія та Стереометрія",
-            items: [
-              "Початки Геометрії.",
-              "Прямі та площини в просторі.",
-              "Трикутники.",
-              "Коло і круг та їх елементи.",
-              "Чотирикутники та Многокутники.",
-              "Вписані та описані фігури.",
-              "Практичні приклади з геометрії.",
-              "Вектори.",
-              "Призма, Піраміда, Тіла обертання."
-            ]
-          },
-          {
-            name: "Контроль",
-            items: [
-              "Додаткові матеріали.",
-              "Пробний варіант НМТ."
-            ]
-          }
+        topics: [
+          "Числові множини. Прості та складені числа.", "Ознаки подільності. НСК. НСД.", "Основи Арифметики.",
+          "Дроби.", "Десяткові дроби.", "Відсотки.", "Пропорції.", "Середні величини.", "Степінь.", "Корінь.",
+          "Формули скороченого множення.", "Стандартний вигляд числа.", "Скорочення раціональних та ірраціональних виразів.",
+          "Лінійні рівняння.", "Модуль.", "Квадратні рівняння.", "Раціональні та ірраціональні рівняння.", "Рівняння з модулем.",
+          "Логарифм.", "Основи тригонометрії.", "Показникові рівняння.", "Логарифмічні рівняння.", "Тригонометричні рівняння.",
+          "Системи рівнянь.", "Текстові задачі.", "Координатна пряма.", "Числові нерівності (лінійні).", "Квадратичні нерівності.",
+          "Раціональні / Ірраціональні нерівності.", "Показникові / Логарифмічні нерівності.", "Нерівності зі змінною в модулі.",
+          "Прогресії.", "Властивості функцій.", "Види графіків функцій.", "Похідна функції.", "Первісна та інтеграл.",
+          "Початки Математичної Статистики.", "Параметр.", "Початки Геометрії.", "Прямі та площини в просторі.",
+          "Трикутники.", "Коло і круг та їх елементи.", "Чотирикутники.", "Многокутники.", "Вписані та описані фігури.",
+          "Практичні приклади з геометрії.", "Вектори.", "Призма.", "Піраміда.", "Тіла обертання.", "Додаткові матеріали.", "Пробний варіант НМТ."
         ]
       },
       lang: {
         title: "Українська мова",
-        code: "МОВ",
-        class: "theme-lang",
-        sections: [
-          {
-            name: "Фонетика та Орфоепія",
-            items: [
-              "Склад. Наголос.",
-              "Найпоширеніші випадки чергування звуків.",
-              "Перелік слів з нормативним наголосом."
-            ]
-          },
-          {
-            name: "Орфографія",
-            items: [
-              "Ненаголошені голосні е, и, о.",
-              "Правопис префіксів.",
-              "Спрощення в групах приголосних.",
-              "Зміни приголосних при творенні слів.",
-              "Апостроф та Знак м'якшення (ь).",
-              "Сполучення йо, ьо.",
-              "Подвоєння літер.",
-              "Слова іншомовного походження.",
-              "Велика літера та лапки у власних назвах.",
-              "Складні слова.",
-              "Правопис НЕ з різними частинами мови.",
-              "Чергування у-в, і-й та правила переносу."
-            ]
-          },
-          {
-            name: "Будова, Лексика, Фразеологія",
-            items: [
-              "Лексикологія.",
-              "Фразеологія.",
-              "Будова слова. Словотвір."
-            ]
-          },
-          {
-            name: "Морфологія",
-            items: [
-              "Іменник.",
-              "Прикметник.",
-              "Числівник.",
-              "Займенник.",
-              "Дієслово (Дієприкметник, Дієприслівник).",
-              "Прислівник.",
-              "Службові частини мови та вигук.",
-              "Загальна морфологія."
-            ]
-          },
-          {
-            name: "Синтаксис та Пунктуація",
-            items: [
-              "Словосполучення.",
-              "Головні та другорядні члени речення.",
-              "Односкладні та ускладнені речення.",
-              "Відокремлені члени речення.",
-              "Складне речення.",
-              "Пряма мова.",
-              "Стилістика та розвиток мовлення."
-            ]
-          }
+        topics: [
+          "Склад. Наголос.", "Найпоширеніші випадки чергування звуків.",
+          "Правопис літер, що позначають ненаголошені голосні е, и, о.", "Правопис префіксів.",
+          "Спрощення в групах приголосних.", "Зміни приголосних при творенні слів.", "Апостроф.",
+          "Знак м'якшення (ь).", "Сполучення йо, ьо.", "Подвоєння літер.", "Написання слів іншомовного походження.",
+          "Велика літера та лапки у власних назвах.", "Складні слова.", "Правопис не з різними частинами мови.",
+          "Основні випадки чергування у-в, і-й.", "Основні правила переносу слів.", "Лексикологія.", "Фразеологія.",
+          "Будова слова. Словотвір.", "Іменник.", "Прикметник.", "Числівник.", "Займенник.", "Дієслово.",
+          "Дієприкметник.", "Дієприслівник.", "Прислівник.", "Службові частини мови та вигук (Прийменник, Сполучник, Частка, Вигук).",
+          "Загальна морфологія.", "Словосполучення.", "Головні члени речення.", "Другорядні члени речення.",
+          "Класифікація речень.", "Односкладні речення.", "Ускладнене речення.", "Відокремлені члени речення.",
+          "Складне речення.", "Пряма мова.", "Стилістика. Розвиток мовлення.", "Власне висловлення (розвиток мовлення).", "Перелік слів з нормативним наголосом."
         ]
       },
       lit: {
         title: "Укр. література",
-        code: "ЛІТ",
-        class: "theme-lit",
-        sections: [
-          {
-            name: "Фольклор та Давня література",
-            items: [
-              "Усна народна творчість.",
-              "Григорій Сковорода."
-            ]
-          },
-          {
-            name: "Література кін. XVIII – поч. XX ст.",
-            items: [
-              "Іван Котляревський.",
-              "Тарас Шевченко.",
-              "Пантелеймон Куліш.",
-              "Іван Нечуй-Левицький.",
-              "Панас Мирний.",
-              "Іван Карпенко-Карий.",
-              "Іван Франко."
-            ]
-          },
-          {
-            name: "Модернізм та Проза XX ст.",
-            items: [
-              "Михайло Коцюбинський.",
-              "Василь Стефаник.",
-              "Ольга Кобилянська.",
-              "Леся Українка.",
-              "Микола Хвильовий.",
-              "Валер'ян Підмогильний.",
-              "Юрій Яновський.",
-              "Остап Вишня.",
-              "Микола Куліш.",
-              "Олександр Довженко.",
-              "Олесь Гончар.",
-              "Григір Тютюнник.",
-              "Іван Багряний."
-            ]
-          },
-          {
-            name: "Поезія XX століття",
-            items: [
-              "Микола Вороний та Олександр Олесь.",
-              "Павло Тичина та Максим Рильський.",
-              "Володимир Сосюра.",
-              "Богдан-Ігор Антонич.",
-              "Ліна Костенко.",
-              "Андрій Малишко та Василь Симоненко.",
-              "Василь Голобородько та Василь Стус.",
-              "Іван Драч та Дмитро Павличко.",
-              "Євген Маланюк."
-            ]
-          }
+        topics: [
+          "Усна народна творчість.", "Григорій Сковорода.", "Іван Котляревський.", "Тарас Шевченко.", "Пантелеймон Куліш.",
+          "Іван Нечуй-Левицький.", "Панас Мирний.", "Іван Карпенко-Карий.", "Іван Франко.", "Михайло Коцюбинський.",
+          "Василь Стефаник.", "Ольга Кобилянська.", "Леся Українка.", "Микола Вороний.", "Олександр Олесь.",
+          "Павло Тичина.", "Максим Рильський.", "Володимир Сосюра.", "Богдан-Ігор Антонич.", "Микола Хвильовий.",
+          "Валер'ян Підмогильний.", "Юрій Яновський.", "Остап Вишня.", "Микола Куліш.", "Олександр Довженко.",
+          "Олесь Гончар.", "Григір Тютюнник.", "Ліна Костенко.", "Іван Багряний.", "Андрій Малишко.",
+          "Василь Симоненко.", "Василь Голобородько.", "Василь Стус.", "Іван Драч.", "Дмитро Павличко.", "Євген Маланюк."
         ]
       }
     };
 
-    // Состояние прогресса
-    let state = JSON.parse(localStorage.getItem('nmt_tracker_v1') || '{}');
-    let activeSubjectKey = null;
+    let state = JSON.parse(localStorage.getItem('nmt_v3')) || { done: {}, plan: {} };
 
-    function saveState() {
-      localStorage.setItem('nmt_tracker_v1', JSON.stringify(state));
-      renderHub();
-      if (activeSubjectKey) renderDetailHeader();
+    // Миграция старых сохранений
+    const oldState = JSON.parse(localStorage.getItem('nmt_v2'));
+    if(oldState && !localStorage.getItem('nmt_v3')) {
+      state = oldState;
+      localStorage.setItem('nmt_v3', JSON.stringify(state));
     }
 
-    function getSubjectStats(key) {
-      const sub = SUBJECTS[key];
-      let total = 0;
-      let done = 0;
+    function save() {
+      localStorage.setItem('nmt_v3', JSON.stringify(state));
+      renderDashboard();
+    }
 
-      sub.sections.forEach(sec => {
-        sec.items.forEach(task => {
-          total++;
-          const taskId = `${key}_${task}`;
-          if (state[taskId]) done++;
+    function renderDashboard() {
+      let total = 0; let doneTotal = 0;
+      
+      for (let key in DB) {
+        let subTotal = DB[key].topics.length;
+        let subDone = DB[key].topics.filter(t => state.done[`${key}_${t}`]).length;
+        document.getElementById(`stat-${key}`).innerText = `${subDone} / ${subTotal}`;
+        total += subTotal;
+        doneTotal += subDone;
+      }
+      
+      document.getElementById('total-text').innerText = `${doneTotal} / ${total} тем вивчено`;
+      document.getElementById('total-fill').style.width = `${(doneTotal / total) * 100}%`;
+
+      const planContainer = document.getElementById('plan-list-container');
+      planContainer.innerHTML = '';
+      
+      let planItems = [];
+      for (let key in DB) {
+        DB[key].topics.forEach(t => {
+          let id = `${key}_${t}`;
+          if (state.plan[id] && !state.done[id]) {
+            planItems.push({ id, text: t, subKey: key, subTitle: DB[key].title });
+          }
         });
-      });
-
-      return { total, done, pct: total ? Math.round((done / total) * 100) : 0 };
-    }
-
-    function renderHub() {
-      const grid = document.getElementById('hub-grid');
-      grid.innerHTML = '';
-
-      let grandTotal = 0;
-      let grandDone = 0;
-
-      for (const [key, data] of Object.entries(SUBJECTS)) {
-        const stats = getSubjectStats(key);
-        grandTotal += stats.total;
-        grandDone += stats.done;
-
-        const card = document.createElement('div');
-        card.className = `subject-btn ${data.class}`;
-        card.onclick = () => openSubject(key);
-
-        card.innerHTML = `
-          <div class="btn-top">
-            <div class="badge-icon">${data.code}</div>
-            <div class="percent-val">${stats.pct}%</div>
-          </div>
-          <div class="btn-bottom">
-            <div class="subject-title">${data.title}</div>
-            <div class="subject-fraction">${stats.done}/${stats.total} тем</div>
-            <div class="mini-track">
-              <div class="mini-fill" style="width: ${stats.pct}%"></div>
-            </div>
-          </div>
-        `;
-        grid.appendChild(card);
       }
 
-      // Обновление общего хедера
-      const totalPct = grandTotal ? Math.round((grandDone / grandTotal) * 100) : 0;
-      document.getElementById('total-stats').innerHTML = `<span>${totalPct}%</span> (${grandDone}/${grandTotal})`;
-      document.getElementById('total-bar').style.width = `${totalPct}%`;
-    }
-
-    function renderDetailHeader() {
-      const sub = SUBJECTS[activeSubjectKey];
-      const stats = getSubjectStats(activeSubjectKey);
-      document.getElementById('view-title').textContent = sub.title;
-      document.getElementById('view-progress').textContent = `${stats.done} з ${stats.total} вивчено (${stats.pct}%)`;
+      if (planItems.length === 0) {
+        planContainer.innerHTML = `<div class="empty-plan">План порожній. Натисніть "Вибрати теми", щоб додати їх сюди.</div>`;
+      } else {
+        planItems.forEach(item => {
+          let div = document.createElement('div');
+          div.className = 'list-item';
+          div.innerHTML = `
+            <div class="checkbox"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <div class="item-text">
+              ${item.text}
+              <div class="item-subtext">${item.subTitle}</div>
+            </div>
+          `;
+          div.onclick = () => {
+            state.done[item.id] = true;
+            delete state.plan[item.id];
+            div.classList.add('done');
+            setTimeout(save, 250); 
+          };
+          planContainer.appendChild(div);
+        });
+      }
     }
 
     function openSubject(key) {
-      activeSubjectKey = key;
-      const sub = SUBJECTS[key];
-      
-      renderDetailHeader();
-      const container = document.getElementById('tasks-scroll');
-      container.innerHTML = '';
+      document.getElementById('subject-title').innerText = DB[key].title;
+      let container = document.getElementById('subject-content');
+      container.innerHTML = '<div class="item-group"></div>';
+      let group = container.querySelector('.item-group');
 
-      sub.sections.forEach(sec => {
-        const block = document.createElement('div');
-        block.className = 'section-block';
-
-        const title = document.createElement('div');
-        title.className = 'section-title';
-        title.textContent = sec.name;
-        block.appendChild(title);
-
-        sec.items.forEach(task => {
-          const taskId = `${key}_${task}`;
-          const isDone = !!state[taskId];
-
-          const row = document.createElement('div');
-          row.className = `todo-item ${isDone ? 'done' : ''}`;
-          
-          row.innerHTML = `
-            <div class="custom-checkbox">
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <div class="todo-label">${task}</div>
-          `;
-
-          row.onclick = () => {
-            state[taskId] = !state[taskId];
-            if (!state[taskId]) delete state[taskId];
-            row.classList.toggle('done');
-            saveState();
-          };
-
-          block.appendChild(row);
-        });
-
-        container.appendChild(block);
+      DB[key].topics.forEach(t => {
+        let id = `${key}_${t}`;
+        let div = document.createElement('div');
+        div.className = `list-item ${state.done[id] ? 'done' : ''}`;
+        div.innerHTML = `
+          <div class="checkbox"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+          <div class="item-text">${t}</div>
+        `;
+        div.onclick = () => {
+          state.done[id] = !state.done[id];
+          if(state.done[id]) delete state.plan[id];
+          div.classList.toggle('done');
+          save();
+        };
+        group.appendChild(div);
       });
 
-      document.getElementById('todo-view').style.display = 'flex';
-      window.scrollTo(0, 0);
+      document.getElementById('view-subject').classList.add('active');
     }
 
-    document.getElementById('btn-back').onclick = () => {
-      document.getElementById('todo-view').style.display = 'none';
-      activeSubjectKey = null;
-      renderHub();
-    };
+    // Новый экран выбора плана (Аккордеон)
+    function openPlanSelector() {
+      let container = document.getElementById('plan-selector-content');
+      container.innerHTML = '';
 
-    // Первичный запуск
-    renderHub();
+      for (let key in DB) {
+        // Обертка предмета
+        let accWrapper = document.createElement('div');
+        accWrapper.className = `acc-wrapper c-${key}`;
+
+        // Кнопка (заголовок предмета)
+        let row = document.createElement('div');
+        row.className = `subject-row c-${key}`;
+        row.innerHTML = `
+          <div class="card-icon"><img class="icon-${key}" alt="icon"></div>
+          <div class="subject-row-title">${DB[key].title}</div>
+          <div class="chevron">＋</div>
+        `;
+        
+        // Список тем (скрыт по умолчанию)
+        let content = document.createElement('div');
+        content.className = 'acc-content';
+
+        let hasItems = false;
+        DB[key].topics.forEach(t => {
+          let id = `${key}_${t}`;
+          if (state.done[id]) return; 
+          hasItems = true;
+
+          let div = document.createElement('div');
+          div.className = `list-item ${state.plan[id] ? 'in-plan' : ''}`;
+          div.innerHTML = `
+            <div class="plan-checkbox"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <div class="item-text">${t}</div>
+          `;
+          div.onclick = () => {
+            if (state.plan[id]) delete state.plan[id];
+            else state.plan[id] = true;
+            div.classList.toggle('in-plan');
+          };
+          content.appendChild(div);
+        });
+
+        if (!hasItems) {
+          content.innerHTML = `<div class="list-item"><div class="item-text" style="color: var(--text-sec); font-size: 14px;">Всі теми цього предмету вже вивчені! 🎉</div></div>`;
+        }
+
+        // Логика аккордеона
+        row.onclick = () => {
+          const isOpen = content.classList.contains('open');
+          
+          // Закрываем все остальные (опционально для удобства на телефоне)
+          document.querySelectorAll('.acc-content').forEach(el => el.classList.remove('open'));
+          document.querySelectorAll('.chevron').forEach(el => el.innerText = '＋');
+          
+          if (!isOpen) {
+            content.classList.add('open');
+            row.querySelector('.chevron').innerText = '—';
+          }
+        };
+
+        accWrapper.appendChild(row);
+        accWrapper.appendChild(content);
+        container.appendChild(accWrapper);
+      }
+
+      document.getElementById('view-plan-selector').classList.add('active');
+    }
+
+    function closeView(id) { document.getElementById(id).classList.remove('active'); }
+    function closePlanSelector() { closeView('view-plan-selector'); save(); }
+
+    renderDashboard();
   </script>
 </body>
 </html>
